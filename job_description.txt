@@ -1,0 +1,1 @@
+We are looking for a Data Scientist to develop and deploy machine learning models on AWS. The ideal candidate will have 3+ years of experience using Python, Pandas, and Scikit-learn to analyze large datasets and build predictive algorithms. You will be responsible for the entire model lifecycle, from data ingestion to monitoring in a production environment."
