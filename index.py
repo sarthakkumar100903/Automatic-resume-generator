@@ -7,14 +7,14 @@ from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
 
 # --- Configuration ---
-load_dotenv() # Create a .env file with GOOGLE_API_KEY="your_key_here"
+# Loads credentials from your .env file
+load_dotenv()
 
-# --- 1. HARDCODED BASE RESUME CONTENT ---
-# ... (Your BASE_EXPERIENCE_TEX, BASE_PROJECTS_TEX, and BASE_SKILLS_TEX variables remain the same) ...
+# --- 1. HARDCODED BASE RESUME CONTENT (Updated with Experience Links) ---
 BASE_EXPERIENCE_TEX = r"""
 \resumeSubHeadingListStart
     \resumeSubheading
-      {Member Of Technical Staff Intern}{January 2025 – June 2025}
+      {\href{https://drive.google.com/file/d/1fhqgI6ju6VdGSqkf6CPlYzU2w97n2q2-/view?usp=drive_link}{Member Of Technical Staff Intern}}{January 2025 - June 2025}
       {\textbf{Nutanix}}{Bengaluru, India}
       \resumeItemListStart
         \item \textbf{Tech Stack:} Python, React, Redux, Go-Lang, Calm, Epsilon
@@ -23,10 +23,10 @@ BASE_EXPERIENCE_TEX = r"""
         \item Integrated Macros, Dynamic, and Global Variables into the React UI and backend to standardize configuration, reducing manual input errors and setup time by 25%.
       \resumeItemListEnd
     \resumeSubheading
-      {Data Scientist Intern}{May 2024 – August 2024}
+      {\href{https://drive.google.com/file/d/1Fpkl9hBbqGKuNxbl2WrzFqah6iefmgrF/view?usp=drive_link}{Data Scientist Intern}}{May 2024 - August 2024}
       {\textbf{Teliolabs Communication Private limited}}{Hyderabad, India}
       \resumeItemListStart
-        \item \textbf{Tech Stack:} Python, NLTK, Faiss DB, Bert, Tensorflow, React, Django.
+        \item \textbf{Tech Stack: Python, NLTK, Faiss DB, Bert, Tensorflow, React, Django}.
         \item Formulated an ML model to predict solutions for Jira Tickets by processing and summarizing ticket data from Confluence, storing embeddings in vector DB; achieved 85% accuracy in solution recommendations, reducing manual resolution time by roughly 40%.
       \resumeItemListEnd
 \resumeSubHeadingListEnd
@@ -35,7 +35,7 @@ BASE_EXPERIENCE_TEX = r"""
 BASE_PROJECTS_TEX = r"""
 \resumeSubHeadingListStart
     \resumeProject
-      {{\textbf{Runalytix – Intelligent Runbook Validator and Optimizer}} \href{https://youtu.be/aLlhrwAPgxA}{\textit{\small{Video}}} \textbar{} \href{https://docs.google.com/presentation/d/1qt7XzuZkbnZ_yUeG8MJ2ZQZqVL7QH2_8/edit?slide=id.p1#slide=id.p1}{\textit{\small{Design Doc}}}}
+      {{\textbf{Runalytix – Intelligent Runbook Validator and Optimizer}} \href{https://youtu.be/aLlhrwAPgxA}{\textit{\small{Video}}} \textbar{} \href{https://docs.google.com/presentation/d/1qt7XzuZkbnZ_yUeG8MJ2ZQZqVL7QH2_8/edit?slide=id.p1\#slide=id.p1}{\textit{\small{Design Doc}}}}
       {}
       {May 2025}
       {}
@@ -101,7 +101,7 @@ def compile_pdf():
     for i in range(2):
         process = subprocess.run(
             ['pdflatex', '-interaction=nonstopmode', MASTER_LATEX_FILE],
-            capture_output=True, text=True
+            capture_output=True, text=True, encoding='utf-8'
         )
         if process.returncode != 0:
             print(f"--- LaTeX Compilation Error (Pass {i+1}) ---")
@@ -113,16 +113,22 @@ def compile_pdf():
 
 def main():
     """Main function to run the resume generation process."""
-    print("--- Starting Automated Resume Generation (Hardcoded Edition) ---")
+    print("--- Starting Automated Resume Generation (Gemini Edition) ---")
 
-    # Initialize LLM and Prompt
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash") # Using the more powerful model
+    # 1. Initialize Google Gemini LLM
+    try:
+        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
+    except Exception as e:
+        print(f"Error initializing Gemini LLM: {e}")
+        print("Please ensure your .env file has GOOGLE_API_KEY set correctly.")
+        return
+
     output_parser = StrOutputParser()
     
-    # IMPROVED PROMPT
+    # 2. IMPROVED, MORE ROBUST PROMPT
     prompt_template = ChatPromptTemplate.from_template(
         """
-        You are an expert resume writer. Your task is to significantly rewrite and tailor the Experience, Projects, and Skills sections of a LaTeX resume to perfectly match a job description.
+        You are an expert resume writer. Your task is to intelligently rewrite sections of a LaTeX resume to align with a job description, following specific rules for each section.
 
         **HIGHEST PRIORITY INSTRUCTIONS FROM USER:**
         ---
@@ -149,11 +155,25 @@ def main():
         {base_skills}
         ---
 
-        **YOUR TASK:**
-        You MUST rewrite, rephrase, and reorder the content in the base LaTeX sections to align with the Job Description and User Context. Do not simply return the original text.
-        1.  In the Experience and Projects sections, you MUST rephrase the bullet points to use keywords and reflect the responsibilities mentioned in the job description. Emphasize achievements and quantifiable results that are most relevant to the role.
-        2.  In the Skills section, you MUST re-organize and prioritize the skills to highlight what's most important for the job.
-        3.  Crucially, you must maintain the exact original LaTeX structure and commands. Do not change the LaTeX formatting.
+        **YOUR TASK & RULES:**
+        You must generate new LaTeX content for all three sections based on the following rules:
+
+        **Rule 1: For Experience and Projects sections:**
+        - **PRESERVE HEADERS AND LINKS:** You MUST copy the entire header line for each entry (the line with `\resumeSubheading` or `\resumeProject`) VERBATIM. Do not change titles, dates, or hyperlinks (`\href`).
+        - **REWRITE BULLET POINTS STRATEGICALLY:** Your primary task is to edit the existing bullet points (`\item`). You should replace less relevant details with new information that directly aligns with the Job Description. It is better to modify an existing point than to add a new one.
+        - **MAINTAIN CONCISENESS AND LENGTH:** The total length of the rewritten bullet points for each entry MUST be very similar to the original length. Do not significantly increase the amount of text. This is a strict constraint to ensure the resume formatting is preserved.
+        - The degree of change should be guided by the User Context.
+
+        **Rule 2: For the Skills section:**
+        - You MUST perform a complete rewrite of this section.
+        - Analyze the Job Description to identify the most critical skills.
+        - Analyze the Base Skills to see what the candidate already has.
+        - Create a new, prioritized list of skills that combines relevant skills from the base content with new skills found in the job description.
+        - You SHOULD create new categories (`\resumeItem{{\textbf{{Category}}}}{{...}}`) if it makes the section clearer and more relevant to the job.
+
+        **Rule 3: General:**
+        - You MUST maintain the original LaTeX structure and commands. Do not invent new commands.
+        - Your final output must only contain the LaTeX code inside the specified tags.
 
         **OUTPUT FORMAT:**
         Provide the full, rewritten LaTeX code for all three sections, enclosed in the following tags. Do not add any other commentary.
@@ -172,16 +192,16 @@ def main():
         """
     )
 
-    # Create the LangChain Chain
+    # 3. Create the LangChain Chain
     chain = prompt_template | llm | output_parser
 
-    # Read the job description and user context from files
+    # 4. Read the job description and user context from files
     print("Reading job description and user context...")
     with open(JOB_DESC_FILE, 'r', encoding='utf-8') as f: job_desc = f.read()
     with open(USER_CONTEXT_FILE, 'r', encoding='utf-8') as f: user_context = f.read()
 
-    # Invoke the chain with the hardcoded content
-    print("Calling the LLM via LangChain to tailor the resume...")
+    # 5. Invoke the chain with the hardcoded content
+    print("Calling Gemini via LangChain to tailor the resume...")
     llm_response = chain.invoke({
         "user_context": user_context,
         "job_description": job_desc,
@@ -191,7 +211,7 @@ def main():
     })
     print("LLM response received.")
 
-    # Parse the response and overwrite the files
+    # 6. Parse the response and overwrite the files
     try:
         new_experience = re.search(r'<EXPERIENCE_TEX_START>(.*?)<EXPERIENCE_TEX_END>', llm_response, re.DOTALL).group(1).strip()
         new_projects = re.search(r'<PROJECTS_TEX_START>(.*?)<PROJECTS_TEX_END>', llm_response, re.DOTALL).group(1).strip()
@@ -208,8 +228,8 @@ def main():
 
         print("All .tex files updated successfully.")
 
-        # Compile the final PDF
-        #compile_pdf()
+        # 7. Compile the final PDF
+        compile_pdf()
 
     except AttributeError:
         print("\n--- ERROR ---")
@@ -220,3 +240,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

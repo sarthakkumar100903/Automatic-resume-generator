@@ -1,1 +1,34 @@
-We are looking for a Data Scientist to develop and deploy machine learning models on AWS. The ideal candidate will have 3+ years of experience using Python, Pandas, and Scikit-learn to analyze large datasets and build predictive algorithms. You will be responsible for the entire model lifecycle, from data ingestion to monitoring in a production environment."
+Role: C++ Software Engineer, Cloud Infrastructure
+
+Location: Bengaluru, India
+
+Job Summary:
+We are seeking a highly skilled C++ Software Engineer to join our core Cloud Infrastructure team. In this role, you will be responsible for designing, developing, and maintaining the high-performance, distributed services that form the backbone of our cloud platform. You will tackle complex challenges in concurrency, low-latency communication, and large-scale data management to build a reliable and scalable infrastructure.
+
+Key Responsibilities:
+
+Develop and optimize critical infrastructure services using modern C++ (C++14/17/20).
+
+Design and implement scalable solutions for distributed storage and networking components.
+
+Analyze and enhance the performance of systems, focusing on low latency, high throughput, and efficient resource utilization (CPU, memory).
+
+Work extensively in a Linux environment, leveraging systems programming concepts for maximum performance.
+
+Collaborate on the architecture of new services and ensure the reliability and security of the existing platform.
+
+Engage with containerization and orchestration technologies, including Docker and Kubernetes, to deploy and manage services.
+
+Qualifications:
+
+Strong proficiency in C++ and a deep understanding of its features, including multi-threading, memory management, and STL.
+
+Solid foundation in data structures, algorithms, and distributed systems principles.
+
+Experience with systems programming on Linux/Unix environments.
+
+Familiarity with computer networking concepts (TCP/IP, sockets).
+
+Experience with performance analysis and debugging tools (e.g., gdb, Valgrind).
+
+Knowledge of containerization (Docker) and cloud orchestration (Kubernetes) is a significant plus.

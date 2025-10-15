@@ -1,1 +1,3 @@
-change the experience skills and projects section according to the job description.
+For the Experience and Projects sections, introduce references to the C++ cloud infrastructure role. Rephrase some bullet points to touch upon concepts like performance, scalability, or resource management where it makes sense, but do not fundamentally change the core achievements of the projects or internships. Ensure all original hyperlinks (\href) are preserved perfectly.
+
+For the Technical Skills section, perform a significant changes Heavily prioritize skills relevant to the job description
